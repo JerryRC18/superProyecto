@@ -30,3 +30,34 @@ const createNavbar = () =>{
 }
 
 createNavbar()
+
+//User icon popup
+let userIcon = document.querySelector('.user-icon')
+let userPopupIcon = document.querySelector('.user-icon-popup')
+
+userIcon.addEventListener('click', () => {
+    userPopupIcon.classList.toggle('active')
+})
+
+let text = userPopupIcon.querySelector('p')
+let actionBtn = userPopupIcon.querySelector('a')
+let user = JSON.parse(sessionStorage.user || null)
+
+if(user != null){
+    text.innerHTML = `log in as, ${user.name}`
+    actionBtn.innerHTML `log out`
+    actionBtn.addEventListener('click', () => {
+        logout()
+    })
+}else{
+    text.innerHTML = 'log in to your account'
+    actionBtn.innerHTML = 'login'
+    actionBtn.addEventListener('click', () => {
+        location.href('/login')
+    })
+}
+
+const logout = () => {
+    sessionStorage.clear()
+    location.reload()
+}
