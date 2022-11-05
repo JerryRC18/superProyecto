@@ -4,16 +4,15 @@ import stripe from 'stripe'
 import { initializeApp } from 'firebase/app'
 import { getFirestore, doc, collection, setDoc, getDoc } from 'firebase/firestore'
 
- //Configuracion de firebase
-
- const firebaseConfig = {
-   apiKey: "AIzaSyBbVPOWM313AOysb8b4l2NTRFXa9olc0zI",
-     authDomain: "jgrcecommerce.firebaseapp.com",
-     projectId: "jgrcecommerce",
-     storageBucket: "jgrcecommerce.appspot.com",
-     messagingSenderId: "246296607364",
-     appId: "1:246296607364:web:16c8445156ceb586e2e0d1"
-    }
+//Configuración de Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyBbVPOWM313AOysb8b4l2NTRFXa9olc0zI",
+  authDomain: "jgrcecommerce.firebaseapp.com",
+  projectId: "jgrcecommerce",
+  storageBucket: "jgrcecommerce.appspot.com",
+  messagingSenderId: "246296607364",
+  appId: "1:246296607364:web:16c8445156ceb586e2e0d1"
+};
 
 const firebase = initializeApp(firebaseConfig)
 const db = getFirestore()
@@ -58,14 +57,16 @@ app.post('/signup', (req, res) => {
         res.json({ 'alert': 'email already exists'})
       } else {
         // encriptar password
-        bcrypt.genSalt(10, (err, hash) => {
-          req.body.password = hash
-          req.body.seller = false
+        bcrypt.genSalt(10, (err, salt) => {
+          bcrypt.hash(password, salt, (err, hash) => {
+            req.body.password = hash
+            req.body.seller = false
           setDoc(doc(users, email), req.body).then(data =>{
-            res.json({
-              name: req.body.name,
-              email: req.body.email,
-              seller: req.body.seller
+              res.json({
+                name: req.body.name,
+                email: req.body.email,
+                seller: req.body.seller
+              })
             })
           })
         })
