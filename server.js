@@ -2,7 +2,7 @@ import express from 'express'
 import bcrypt from 'bcrypt'
 import stripe from 'stripe'
 import { initializeApp } from 'firebase/app'
-import { getFirestore, doc, collection, setDoc, getDoc } from 'firebase/firestore'
+import { getFirestore, doc, collection, setDoc, getDoc, updateDoc } from 'firebase/firestore'
 
 //Configuración de Firebase
 const firebaseConfig = {
@@ -112,7 +112,35 @@ app.post('/login', (req, res) => {
     })
 })
 
+//Ruta seller
+app.get('/seller', (req, res) => {
+  res.sendFile('seller.html', { root: 'public'})
+})
 
+app.post('/seller', (req, res) => {
+  let {name, address, about, number, email} = req.body
+
+  if(!name.lenght || !address.lenght || !about.lenght || number.lenght < 10 || Number(number)){
+    return res.json({
+      'alert': 'something was wrong'
+    })
+  } else {
+    //Update seller
+    const sellers = collection(db, "sellers")
+    setDoc(doc(sellers, email), req.body)
+      .then(data => {
+        const users = collection(db, "users")
+        updateDoc(doc(users, email), {
+          seller: true
+        })
+        .then( data => {
+          res.JSON({
+            'seller': true
+          })
+        })
+      })
+  }
+})
 
 app.listen(3000, () => {
 	console.log('Servidor en Ejecución...')
