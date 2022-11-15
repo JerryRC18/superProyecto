@@ -2,7 +2,7 @@ import express from 'express'
 import bcrypt from 'bcrypt'
 import stripe from 'stripe'
 import { initializeApp } from 'firebase/app'
-import { getFirestore, doc, collection, setDoc, getDoc, updateDoc } from 'firebase/firestore'
+import { getFirestore, doc, collection, setDoc, getDoc, updateDoc, getDocs, query, where } from 'firebase/firestore'
 
 //Configuración de Firebase
 const firebaseConfig = {
@@ -140,6 +140,41 @@ app.post('/seller', (req, res) => {
         })
       })
   }
+})
+
+app.get('/dashboard', (req, res) => {
+  res.sendFile('dashboard.html', { root: 'public'})
+})
+
+app.post('/get-products', (req, res) => {
+  let {email, id, tag} = req.body
+  let products = collection(db, 'products')
+  let docRef
+
+  if(id){
+    docRef = getDoc(doc(products, id))
+  }else if(tag){
+    docRef = getDocs(query(products, where("tags", "array-contains"),tag))
+  } else {
+    docRef = getDocs(query(products, where("email", "==", email)))
+  }
+
+  docRef.then( products =>{
+    if(products.empty){
+      return res.json('no products')
+    }
+    let arr = []
+    if(id){
+      return res.json(products.data())
+    }else{
+      products.forEach( item => {
+        let data = item.data()
+        data.id = item.id
+        arr.push(data)
+      })
+    }
+    res.json(arr)
+  })
 })
 
 app.listen(3000, () => {
